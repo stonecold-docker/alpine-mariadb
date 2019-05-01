@@ -1,0 +1,19 @@
+#!/bin/sh
+
+set -e
+
+docker-install -r -u -c mariadb mariadb-client phpmyadmin nginx php7-fpm php7-mbstring php7-session openssl
+
+install -dm755 -o mysql -g mysql /run/mysqld
+mkdir -p /run/nginx
+mkdir -p /usr/share/webapps/phpmyadmin/tmp
+chmod 777 /usr/share/webapps/phpmyadmin/tmp
+
+mkdir -p /conf.d /repo /conf.d/mariadb /conf.d/phpmyadmin /conf.d/nginx /conf.d/certs
+if [ -e /etc/mysql/my.cnf ]; then
+	cp /etc/mysql/my.cnf /etc/mysql/my.cnf.ORG
+fi
+if [ -e /etc/my.cnf.d/mariadb-server.cnf ]; then
+	cp /etc/my.cnf.d/mariadb-server.cnf /etc/my.cnf.d/mariadb-server.cnf.ORG
+fi
+

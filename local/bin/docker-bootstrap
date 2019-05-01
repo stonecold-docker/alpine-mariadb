@@ -1,0 +1,103 @@
+#!/bin/sh
+
+set -e
+
+if [ -e /.init ]; then
+	exit
+fi
+
+touch /.init
+
+chmod 777 /tmp
+
+mkdir -p /conf.d/mariadb /conf.d/phpmyadmin /conf.d/nginx /conf.d/certs
+
+MARIADB_REPO=${MARIADB_REPO:-/repo}
+
+if [ -e /etc/mysql/my.cnf.ORG ]; then
+	if [ ! -s /conf.d/mariadb/my.cnf ]; then
+		cat /etc/mysql/my.cnf.ORG > /conf.d/mariadb/my.cnf
+	fi
+	if [ "$(realpath /etc/mysql/my.cnf)" != "/conf.d/mariadb/my.cnf" ]; then
+		ln -sf /conf.d/mariadb/my.cnf /etc/mysql/my.cnf
+	fi
+fi
+
+if [ -e /etc/my.cnf.d/mariadb-server.cnf.ORG ]; then
+	if [ ! -s /etc/my.cnf.d/mariadb-server.cnf ]; then
+		cat /etc/my.cnf.d/mariadb-server.cnf.ORG > /conf.d/mariadb/mariadb-server.cnf
+	fi
+	if [ "$(realpath /etc/my.cnf.d/mariadb-server.cnf)" != "/conf.d/mariadb/mariadb-server.cnf" ]; then
+		ln -sf /conf.d/mariadb/mariadb-server.cnf /etc/my.cnf.d/mariadb-server.cnf
+	fi
+
+	sed -i -e 's/^skip-networking/##skip-networking\nbind-address=0.0.0.0/g' /conf.d/mariadb/mariadb-server.cnf
+fi
+
+if [ ! -s /conf.d/phpmyadmin/config.inc.php ]; then
+	sed -e "s/^\(\$cfg\['blowfish_secret'\]\) = '';/\1 = 'a1B@c3D\$e5F^g7H*i9J)k0L(m8N\&o6P%q4R#s2T!uVwXyZ';/g" -e "s#\(\$cfg\['Servers'\]\[\$i\]\['connect_type'\] = \).*#\1'socket';\n\$cfg\['Servers'\]\[\$i\]\['socket'\] = '/run/mysqld/mysqld.sock';#g" /etc/phpmyadmin/config.inc.php > /conf.d/phpmyadmin/config.inc.php
+	#echo "\$cfg['TempDir'] = '/tmp';" >> /conf.d/phpmyadmin/config.inc.php
+	echo "\$cfg['AllowThirdPartyFraming'] = true;" >> /conf.d/phpmyadmin/config.inc.php
+fi
+if [ "$(realpath /usr/share/webapps/phpmyadmin/config.inc.php)" != "/conf.d/phpmyadmin/config.inc.php" ]; then
+	ln -sf /conf.d/phpmyadmin/config.inc.php /usr/share/webapps/phpmyadmin/config.inc.php
+fi
+
+if [ ! -s /conf.d/nginx/phpmyadmin.conf ]; then
+	cat /usr/local/etc/nginx-phpmyadmin.conf > /conf.d/nginx/phpmyadmin.conf
+fi
+
+chown -R mysql:mysql ${MARIADB_REPO}
+chmod 2755 ${MARIADB_REPO}
+
+if [ ! -e ${MARIADB_REPO}/mysql-bin.index ]; then
+	rm -rf ${MARIADB_REPO}/*
+
+	mysql_install_db --user=mysql --basedir=/usr --datadir=${MARIADB_REPO}
+	mysqld_safe --user=mysql --datadir=${MARIADB_REPO} --nowatch
+	mysqld_pid=
+	for i in $(seq 60)
+	do
+		mysqld_pid="$(ps -ef | grep mysqld | grep -v grep | sed -e "s/^\s*\([[:digit:]]\+\)\s\+.*$/\1/g")"
+		if [ -e /run/mysqld/mysqld.sock -a ! -z "${mysqld_pid}" ]; then
+			break
+		fi
+		sleep 1
+	done
+	if [ -z "${mysqld_pid}" ]; then
+		echo "mysqld_safe start failed"
+		exit 1
+	fi
+	mysqladmin -u root password passwd
+	mysql -uroot -ppasswd < /usr/share/webapps/phpmyadmin/sql/create_tables.sql
+	kill -s TERM ${mysqld_pid}
+	for i in $(seq 60)
+	do
+		mysqld_pid="$(ps -ef | grep mysqld | grep -v grep | sed -e "s/^\s*\([[:digit:]]\+\)\s\+.*$/\1/g")"
+		if [ ! -e /run/mysqld/mysqld.sock -a -z "${mysqld_pid}" ]; then
+			break
+		fi
+		sleep 1
+	done
+	if [ ! -z "${mysqld_pid}" ]; then
+		echo "mysqld_safe stop failed"
+		exit 1
+	fi
+fi
+
+if [ ! -s /conf.d/certs/cert.key -o ! -s /conf.d/certs/cert.crt ]; then
+	echo "Generating an SSL private key to sign your certificate..."
+	openssl genrsa -out /conf.d/certs/cert.key 1024
+
+	echo "Generating a Certificate Signing Request..."
+	openssl req -new -key /conf.d/certs/cert.key -out /conf.d/certs/cert.csr -subj "/C=KR/ST=Seoul/L=Seoul/O=mariadb/OU=phpmyadmin/CN=ssl.local"
+
+	echo "Removing passphrase from key (for nginx)..."
+	cp /conf.d/certs/cert.key /conf.d/certs/cert.key.org
+	openssl rsa -in /conf.d/certs/cert.key.org -out /conf.d/certs/cert.key
+	rm /conf.d/certs/cert.key.org
+
+	echo "Generating certificate..."
+	openssl x509 -req -days 365 -in /conf.d/certs/cert.csr -signkey /conf.d/certs/cert.key -out /conf.d/certs/cert.crt
+
+fi
