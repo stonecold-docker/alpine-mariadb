@@ -2,7 +2,9 @@
 
 set -e
 
-docker-install -r -u -c mariadb mariadb-client phpmyadmin nginx php7-fpm php7-mbstring php7-session openssl
+docker-download goreman
+
+docker-install -r -u -c goreman mariadb mariadb-client phpmyadmin nginx php7-fpm php7-mbstring php7-session openssl
 
 install -dm755 -o mysql -g mysql /run/mysqld
 mkdir -p /run/nginx
