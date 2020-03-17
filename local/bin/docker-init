@@ -2,19 +2,19 @@
 
 set -e
 
-echo "==> Installing required packages"
+echo "[$(TZ="GMT-9" date '+%Y-%m-%d %H:%M:%S')] ==> Installing required packages"
 PKG_LIB="goreman mariadb mariadb-client phpmyadmin nginx php7-fpm php7-mbstring php7-session openssl"
 PKG_DEV=""
-docker-install -r -u  ${PKG_LIB} ${PKG_DEV}
-echo "==> OK"
+docker-install -r -u ${PKG_LIB} ${PKG_DEV}
+echo "[$(TZ="GMT-9" date '+%Y-%m-%d %H:%M:%S')] ==> OK"
 echo
 
-echo "==> Uninstalling unnecessary packages"
+echo "[$(TZ="GMT-9" date '+%Y-%m-%d %H:%M:%S')] ==> Uninstalling unnecessary packages"
 docker-install -d -c ${PKG_DEV}
-echo "==> OK"
+echo "[$(TZ="GMT-9" date '+%Y-%m-%d %H:%M:%S')] ==> OK"
 echo
 
-echo "==> Setting basic configurations"
+echo "[$(TZ="GMT-9" date '+%Y-%m-%d %H:%M:%S')] ==> Setting basic configurations"
 install -dm755 -o mysql -g mysql /run/mysqld
 mkdir -p /run/nginx
 mkdir -p /usr/share/webapps/phpmyadmin/tmp
@@ -22,6 +22,6 @@ chmod 777 /usr/share/webapps/phpmyadmin/tmp
 
 mkdir -p /conf.d /repo /conf.d/mariadb /conf.d/phpmyadmin /conf.d/nginx /conf.d/certs
 cp /etc/my.cnf.d/mariadb-server.cnf /etc/my.cnf.d/mariadb-server.cnf.ORG
-echo "==> OK"
+echo "[$(TZ="GMT-9" date '+%Y-%m-%d %H:%M:%S')] ==> OK"
 echo
 
