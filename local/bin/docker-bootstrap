@@ -14,25 +14,14 @@ mkdir -p /conf.d/mariadb /conf.d/phpmyadmin /conf.d/nginx /conf.d/certs
 
 MARIADB_REPO=${MARIADB_REPO:-/repo}
 
-if [ -e /etc/mysql/my.cnf.ORG ]; then
-	if [ ! -s /conf.d/mariadb/my.cnf ]; then
-		cat /etc/mysql/my.cnf.ORG > /conf.d/mariadb/my.cnf
-	fi
-	if [ "$(realpath /etc/mysql/my.cnf)" != "/conf.d/mariadb/my.cnf" ]; then
-		ln -sf /conf.d/mariadb/my.cnf /etc/mysql/my.cnf
-	fi
+if [ ! -s /etc/my.cnf.d/mariadb-server.cnf ]; then
+	cat /etc/my.cnf.d/mariadb-server.cnf.ORG > /conf.d/mariadb/mariadb-server.cnf
+fi
+if [ "$(realpath /etc/my.cnf.d/mariadb-server.cnf)" != "/conf.d/mariadb/mariadb-server.cnf" ]; then
+	ln -sf /conf.d/mariadb/mariadb-server.cnf /etc/my.cnf.d/mariadb-server.cnf
 fi
 
-if [ -e /etc/my.cnf.d/mariadb-server.cnf.ORG ]; then
-	if [ ! -s /etc/my.cnf.d/mariadb-server.cnf ]; then
-		cat /etc/my.cnf.d/mariadb-server.cnf.ORG > /conf.d/mariadb/mariadb-server.cnf
-	fi
-	if [ "$(realpath /etc/my.cnf.d/mariadb-server.cnf)" != "/conf.d/mariadb/mariadb-server.cnf" ]; then
-		ln -sf /conf.d/mariadb/mariadb-server.cnf /etc/my.cnf.d/mariadb-server.cnf
-	fi
-
-	sed -i -e 's/^skip-networking/##skip-networking\nbind-address=0.0.0.0/g' /conf.d/mariadb/mariadb-server.cnf
-fi
+sed -i -e 's/^skip-networking/##skip-networking\nbind-address=0.0.0.0/g' /conf.d/mariadb/mariadb-server.cnf
 
 if [ ! -s /conf.d/phpmyadmin/config.inc.php ]; then
 	sed -e "s/^\(\$cfg\['blowfish_secret'\]\) = '';/\1 = 'a1B@c3D\$e5F^g7H*i9J)k0L(m8N\&o6P%q4R#s2T!uVwXyZ';/g" -e "s#\(\$cfg\['Servers'\]\[\$i\]\['connect_type'\] = \).*#\1'socket';\n\$cfg\['Servers'\]\[\$i\]\['socket'\] = '/run/mysqld/mysqld.sock';#g" /etc/phpmyadmin/config.inc.php > /conf.d/phpmyadmin/config.inc.php
@@ -101,3 +90,4 @@ if [ ! -s /conf.d/certs/cert.key -o ! -s /conf.d/certs/cert.crt ]; then
 	openssl x509 -req -days 365 -in /conf.d/certs/cert.csr -signkey /conf.d/certs/cert.key -out /conf.d/certs/cert.crt
 
 fi
+
