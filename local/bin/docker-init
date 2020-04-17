@@ -3,9 +3,18 @@
 set -e
 
 echo "[$(TZ="GMT-9" date '+%Y-%m-%d %H:%M:%S')] ==> Installing required packages"
-PKG_LIB="goreman mariadb mariadb-client phpmyadmin nginx php7-fpm php7-mbstring php7-session openssl"
+USE_NGINX="${USE_NGINX:-N}"
+PKG_LIB="goreman mariadb mariadb-client phpmyadmin openssl"
+if [ "${USE_NGINX}" = "Y" ]; then
+	PKG_LIB="${PKG_LIB} nginx php7-fpm"
+else
+	PKG_LIB="${PKG_LIB} php7"
+fi
 PKG_DEV=""
 docker-install -r -u ${PKG_LIB} ${PKG_DEV}
+if [ "${USE_NGINX}" = "Y" ]; then
+	mkdir -p /run/nginx
+fi
 echo "[$(TZ="GMT-9" date '+%Y-%m-%d %H:%M:%S')] ==> OK"
 echo
 
@@ -15,12 +24,29 @@ echo "[$(TZ="GMT-9" date '+%Y-%m-%d %H:%M:%S')] ==> OK"
 echo
 
 echo "[$(TZ="GMT-9" date '+%Y-%m-%d %H:%M:%S')] ==> Setting basic configurations"
+if [ "${USE_NGINX}" = "Y" ]; then
+	rm -rf /etc/nginx/conf.d/default.conf
+	ln -sf /usr/local/etc/nginx-phpmyadmin.conf /etc/nginx/conf.d/
+else
+	rm -rf /usr/local/bin/start_nginx.sh /usr/local/bin/start_fpm.sh /usr/local/etc/nginx-phpmyadmin.conf
+	sed -i -e '/nginx/d' /usr/local/etc/Procfile
+	sed -i -e '/php-fpm7/d' /usr/local/etc/Procfile
+	echo "phpmyadmin: /usr/local/bin/start_phpmyadmin.sh" >> /usr/local/etc/Procfile
+	cat << EOF > /usr/local/bin/start_phpmyadmin.sh
+#!/bin/sh
+
+cd /usr/share/webapps/phpmyadmin
+
+exec php7 -S 0.0.0.0:3380
+
+EOF
+	chmod 755 /usr/local/bin/start_phpmyadmin.sh
+fi
 install -dm755 -o mysql -g mysql /run/mysqld
-mkdir -p /run/nginx
 mkdir -p /usr/share/webapps/phpmyadmin/tmp
 chmod 777 /usr/share/webapps/phpmyadmin/tmp
 
-mkdir -p /conf.d /repo /conf.d/mariadb /conf.d/phpmyadmin /conf.d/nginx /conf.d/certs
+mkdir -p /conf.d /repo /conf.d/mariadb /conf.d/certs
 cp /etc/my.cnf.d/mariadb-server.cnf /etc/my.cnf.d/mariadb-server.cnf.ORG
 echo "[$(TZ="GMT-9" date '+%Y-%m-%d %H:%M:%S')] ==> OK"
 echo

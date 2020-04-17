@@ -14,5 +14,5 @@ RUN ["docker-init"]
 
 ENTRYPOINT ["docker-run"]
 
-EXPOSE 3306/tcp 3380/tcp 3381/tcp
+EXPOSE 3306/tcp 3380/tcp
 
