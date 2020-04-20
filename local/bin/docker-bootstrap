@@ -8,8 +8,6 @@ fi
 
 touch /.init
 
-chmod 777 /tmp
-
 mkdir -p /conf.d/mariadb /conf.d/phpmyadmin /conf.d/certs
 
 MARIADB_REPO=${MARIADB_REPO:-/repo}
