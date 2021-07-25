@@ -1,23 +1,16 @@
 # alpine-mariadb
+![Docker Pulls](https://img.shields.io/docker/pulls/forumi0721/alpine-mariadb)
+![Docker Stars](https://img.shields.io/docker/stars/forumi0721/alpine-mariadb)
 
-#### [alpine-x64-mariadb](https://hub.docker.com/r/forumi0721alpinex64/alpine-x64-mariadb/)
-![Docker Image Version (tag latest semver)](https://img.shields.io/docker/v/forumi0721alpinex64/alpine-x64-mariadb/latest)
-![Docker Image Size (tag)](https://img.shields.io/docker/image-size/forumi0721alpinex64/alpine-x64-mariadb/latest)
-![MicroBadger Layers (tag)](https://img.shields.io/microbadger/layers/forumi0721alpinex64/alpine-x64-mariadb/latest)
-![Docker Pulls](https://img.shields.io/docker/pulls/forumi0721alpinex64/alpine-x64-mariadb)
-![Docker Stars](https://img.shields.io/docker/stars/forumi0721alpinex64/alpine-x64-mariadb)
-#### [alpine-aarch64-mariadb](https://hub.docker.com/r/forumi0721alpineaarch64/alpine-aarch64-mariadb/)
-![Docker Image Version (tag latest semver)](https://img.shields.io/docker/v/forumi0721alpineaarch64/alpine-aarch64-mariadb/latest)
-![Docker Image Size (tag)](https://img.shields.io/docker/image-size/forumi0721alpineaarch64/alpine-aarch64-mariadb/latest)
-![MicroBadger Layers (tag)](https://img.shields.io/microbadger/layers/forumi0721alpineaarch64/alpine-aarch64-mariadb/latest)
-![Docker Pulls](https://img.shields.io/docker/pulls/forumi0721alpineaarch64/alpine-aarch64-mariadb)
-![Docker Stars](https://img.shields.io/docker/stars/forumi0721alpineaarch64/alpine-aarch64-mariadb)
-#### [alpine-armhf-mariadb](https://hub.docker.com/r/forumi0721alpinearmhf/alpine-armhf-mariadb/)
-![Docker Image Version (tag latest semver)](https://img.shields.io/docker/v/forumi0721alpinearmhf/alpine-armhf-mariadb/latest)
-![Docker Image Size (tag)](https://img.shields.io/docker/image-size/forumi0721alpinearmhf/alpine-armhf-mariadb/latest)
-![MicroBadger Layers (tag)](https://img.shields.io/microbadger/layers/forumi0721alpinearmhf/alpine-armhf-mariadb/latest)
-![Docker Pulls](https://img.shields.io/docker/pulls/forumi0721alpinearmhf/alpine-armhf-mariadb)
-![Docker Stars](https://img.shields.io/docker/stars/forumi0721alpinearmhf/alpine-armhf-mariadb)
+
+
+----------------------------------------
+### x64
+![Docker Image Version](https://img.shields.io/docker/v/forumi0721/alpine-mariadb/latest)
+![Docker Image Size](https://img.shields.io/docker/image-size/forumi0721/alpine-mariadb/latest)
+### aarch64
+![Docker Image Version](https://img.shields.io/docker/v/forumi0721/alpine-mariadb/aarch64)
+![Docker Image Size](https://img.shields.io/docker/image-size/forumi0721/alpine-mariadb/aarch64)
 
 
 
@@ -25,7 +18,7 @@
 #### Description
 
 * Distribution : [Alpine Linux](https://alpinelinux.org/)
-* Architecture : x64,aarch64,armhf
+* Architecture : x64,aarch64
 * Appplication : [MariaDB](https://mariadb.org/) [phpMyAdmin](https://www.phpmyadmin.net/)
     - MariaDB is one of the most popular database servers in the world. It’s made by the original developers of MySQL and guaranteed to stay open source.
     - phpMyAdmin is a free software tool written in PHP, intended to handle the administration of MySQL over the Web. phpMyAdmin supports a wide range of operations on MySQL and MariaDB.
@@ -41,7 +34,7 @@ docker run -d \
            -p 3380:3380/tcp \
            -p 3381:3381/tcp \
            -v /repo:/repo \
-           forumi0721alpine[ARCH]/alpine-[ARCH]-mariadb:latest
+           forumi0721/alpine-mariadb:[ARCH_TAG]
 ```
 
 
