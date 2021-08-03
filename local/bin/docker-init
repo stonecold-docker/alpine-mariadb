@@ -4,7 +4,7 @@ set -e
 
 echo "[$(TZ="GMT-9" date '+%Y-%m-%d %H:%M:%S')] ==> Installing required packages"
 USE_NGINX="${USE_NGINX:-N}"
-PKG_LIB="goreman mariadb mariadb-client phpmyadmin openssl"
+PKG_LIB="goreman mariadb mariadb-client phpmyadmin openssl php7-iconv php7-xml"
 if [ "${USE_NGINX}" = "Y" ]; then
 	PKG_LIB="${PKG_LIB} nginx php7-fpm"
 else
