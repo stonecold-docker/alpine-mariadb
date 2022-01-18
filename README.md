@@ -6,8 +6,8 @@
 
 ----------------------------------------
 ### x64
-![Docker Image Version](https://img.shields.io/docker/v/forumi0721/alpine-mariadb/latest)
-![Docker Image Size](https://img.shields.io/docker/image-size/forumi0721/alpine-mariadb/latest)
+![Docker Image Version](https://img.shields.io/docker/v/forumi0721/alpine-mariadb/x64)
+![Docker Image Size](https://img.shields.io/docker/image-size/forumi0721/alpine-mariadb/x64)
 ### aarch64
 ![Docker Image Version](https://img.shields.io/docker/v/forumi0721/alpine-mariadb/aarch64)
 ![Docker Image Size](https://img.shields.io/docker/image-size/forumi0721/alpine-mariadb/aarch64)

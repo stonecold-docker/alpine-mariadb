@@ -1,1 +1,12 @@
-Dockerfile.x64
+FROM forumi0721/alpine-base:x64
+
+LABEL maintainer="forumi0721@gmail.com"
+
+COPY local/. /usr/local/
+
+RUN ["docker-build"]
+
+ENTRYPOINT ["docker-run"]
+
+EXPOSE 3306/tcp 3380/tcp
+
