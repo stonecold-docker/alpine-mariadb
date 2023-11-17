@@ -4,11 +4,11 @@ set -e
 
 echo "[$(TZ="GMT-9" date '+%Y-%m-%d %H:%M:%S')] ==> Installing required packages"
 USE_NGINX="${USE_NGINX:-N}"
-PKG_LIB="goreman mariadb mariadb-client phpmyadmin openssl php8-iconv php8-xml php8-session php8-mysqli"
+PKG_LIB="goreman mariadb mariadb-client phpmyadmin openssl php83-iconv php83-xml php83-session php83-mysqli"
 if [ "${USE_NGINX}" = "Y" ]; then
-	PKG_LIB="${PKG_LIB} nginx php8-fpm"
+	PKG_LIB="${PKG_LIB} nginx php83-fpm"
 else
-	PKG_LIB="${PKG_LIB} php8"
+	PKG_LIB="${PKG_LIB} php83"
 fi
 PKG_DEV=""
 docker-install -r -u ${PKG_LIB} ${PKG_DEV}
@@ -37,7 +37,7 @@ else
 
 cd /usr/share/webapps/phpmyadmin
 
-exec php8 -S 0.0.0.0:3380
+exec php83 -S 0.0.0.0:3380
 
 EOF
 	chmod 755 /usr/local/bin/start_phpmyadmin.sh
