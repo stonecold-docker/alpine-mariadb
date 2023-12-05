@@ -1,3 +1,3 @@
 mysqld: /usr/local/bin/start_mysqld.sh
 nginx: /usr/local/bin/start_nginx.sh
-php-fpm7: /usr/local/bin/start_fpm.sh
+php-fpm: /usr/local/bin/start_fpm.sh
