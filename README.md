@@ -5,10 +5,10 @@
 
 
 ----------------------------------------
-### x64
-![Docker Image Size](https://img.shields.io/docker/image-size/forumi0721/alpine-mariadb/x64)
-### aarch64
-![Docker Image Size](https://img.shields.io/docker/image-size/forumi0721/alpine-mariadb/aarch64)
+### amd64
+![Docker Image Size (tag)](https://img.shields.io/docker/image-size/forumi0721/alpine-mariadb/latest?arch=amd64)
+### arm64
+![Docker Image Size (tag)](https://img.shields.io/docker/image-size/forumi0721/alpine-mariadb/latest?arch=arm64)
 
 
 
@@ -16,8 +16,8 @@
 #### Description
 
 * Distribution : [Alpine Linux](https://alpinelinux.org/)
-* Architecture : x64,aarch64
-* Appplication : [MariaDB](https://mariadb.org/) [phpMyAdmin](https://www.phpmyadmin.net/)
+* Architecture : amd64, arm64
+* Application : [MariaDB](https://mariadb.org/) [phpMyAdmin](https://www.phpmyadmin.net/)
     - MariaDB is one of the most popular database servers in the world. It’s made by the original developers of MySQL and guaranteed to stay open source.
     - phpMyAdmin is a free software tool written in PHP, intended to handle the administration of MySQL over the Web. phpMyAdmin supports a wide range of operations on MySQL and MariaDB.
 
@@ -32,7 +32,7 @@ docker run -d \
            -p 3380:3380/tcp \
            -p 3381:3381/tcp \
            -v /repo:/repo \
-           forumi0721/alpine-mariadb:[ARCH_TAG]
+           forumi0721/alpine-mariadb:latest
 ```
 
 
