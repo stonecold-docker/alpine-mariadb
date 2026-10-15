@@ -12,14 +12,14 @@ mkdir -p /conf.d/mariadb /conf.d/phpmyadmin /conf.d/certs
 
 MARIADB_REPO=${MARIADB_REPO:-/repo}
 
-if [ ! -s /etc/my.cnf.d/mariadb-server.cnf ]; then
+if [ ! -e /conf.d/mariadb/mariadb-server.cnf ]; then
 	cat /etc/my.cnf.d/mariadb-server.cnf.ORG > /conf.d/mariadb/mariadb-server.cnf
+	sed -i -e 's/^skip-networking/##skip-networking\nbind-address=0.0.0.0/g' /conf.d/mariadb/mariadb-server.cnf
 fi
-if [ "$(realpath /etc/my.cnf.d/mariadb-server.cnf)" != "/conf.d/mariadb/mariadb-server.cnf" ]; then
+if [ ! -e /etc/my.cnf.d/mariadb-server.cnf -o "$(realpath /etc/my.cnf.d/mariadb-server.cnf)" != "/conf.d/mariadb/mariadb-server.cnf" ]; then
+	rm -rf /etc/my.cnf.d/mariadb-server.cnf
 	ln -sf /conf.d/mariadb/mariadb-server.cnf /etc/my.cnf.d/mariadb-server.cnf
 fi
-
-sed -i -e 's/^skip-networking/##skip-networking\nbind-address=0.0.0.0/g' /conf.d/mariadb/mariadb-server.cnf
 
 if [ ! -s /conf.d/phpmyadmin/config.inc.php ]; then
 	sed -e "s/^\(\$cfg\['blowfish_secret'\]\) = '';/\1 = 'a1B@c3D\$e5F^g7H*i9J)k0L(m8N\&o6P%q4R#s2T!uVwXyZ';/g" -e "s#\(\$cfg\['Servers'\]\[\$i\]\['connect_type'\] = \).*#\1'socket';\n\$cfg\['Servers'\]\[\$i\]\['socket'\] = '/run/mysqld/mysqld.sock';#g" /etc/phpmyadmin/config.inc.php > /conf.d/phpmyadmin/config.inc.php
@@ -36,12 +36,12 @@ chmod 2755 ${MARIADB_REPO}
 if [ ! -e ${MARIADB_REPO}/mysql-bin.index ]; then
 	rm -rf ${MARIADB_REPO}/*
 
-	mysql_install_db --user=mysql --basedir=/usr --datadir=${MARIADB_REPO}
-	mysqld_safe --user=mysql --datadir=${MARIADB_REPO} --nowatch
+	mariadb-install-db --user=mysql --basedir=/usr --datadir=${MARIADB_REPO}
+	mariadbd-safe --user=mysql --datadir=${MARIADB_REPO} --nowatch
 	mysqld_pid=
 	for i in $(seq 60)
 	do
-		mysqld_pid="$(ps -ef | grep mysqld | grep -v grep | sed -e "s/^\s*\([[:digit:]]\+\)\s\+.*$/\1/g")"
+		mysqld_pid="$(ps -ef | grep mariadbd | grep -v grep | sed -e "s/^\s*\([[:digit:]]\+\)\s\+.*$/\1/g")"
 		if [ -e /run/mysqld/mysqld.sock -a ! -z "${mysqld_pid}" ]; then
 			break
 		fi
@@ -51,12 +51,13 @@ if [ ! -e ${MARIADB_REPO}/mysql-bin.index ]; then
 		echo "mysqld_safe start failed"
 		exit 1
 	fi
-	mysqladmin -u root password passwd
-	mysql -uroot -ppasswd < /usr/share/webapps/phpmyadmin/sql/create_tables.sql
+
+	mariadb-admin -u root password passwd
+	mariadb -uroot -ppasswd < /usr/share/webapps/phpmyadmin/sql/create_tables.sql
 	kill -s TERM ${mysqld_pid}
 	for i in $(seq 60)
 	do
-		mysqld_pid="$(ps -ef | grep mysqld | grep -v grep | sed -e "s/^\s*\([[:digit:]]\+\)\s\+.*$/\1/g")"
+		mysqld_pid="$(ps -ef | grep mariadbd | grep -v grep | sed -e "s/^\s*\([[:digit:]]\+\)\s\+.*$/\1/g")"
 		if [ ! -e /run/mysqld/mysqld.sock -a -z "${mysqld_pid}" ]; then
 			break
 		fi
